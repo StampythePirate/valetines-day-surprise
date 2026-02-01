@@ -1,0 +1,623 @@
+<!--
+Save this file as index.html
+Upload it to a GitHub repository
+Go to Settings → Pages
+Select Deploy from branch
+Choose main branch / root
+Site will be live via GitHub Pages
+-->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Valentine Surprise</title>
+    <style>
+      :root {
+        --pink-1: #ffe6f2;
+        --pink-2: #ffd1e8;
+        --pink-3: #ffb3da;
+        --pink-4: #ff8cc2;
+        --rose: #ff6fae;
+        --cream: #fff7fb;
+        --ink: #5b2246;
+        --shadow-soft: 0 16px 32px rgba(255, 111, 174, 0.25);
+        --shadow-btn: 0 8px 16px rgba(255, 111, 174, 0.3);
+        --card-radius: 28px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(140deg, #ffd6ea 0%, #ffeef6 45%, #ffd1e8 100%);
+        font-family: "Trebuchet MS", "Comic Sans MS", "Segoe UI", sans-serif;
+        color: var(--ink);
+        overflow: hidden;
+      }
+
+      #app {
+        position: relative;
+        width: min(92vw, 560px);
+        min-height: 520px;
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #background {
+        position: absolute;
+        inset: 0;
+        border-radius: 36px;
+        overflow: hidden;
+        z-index: 0;
+      }
+
+      #background::before {
+        content: "";
+        position: absolute;
+        inset: -20%;
+        background:
+          radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.7), transparent 45%),
+          radial-gradient(circle at 80% 10%, rgba(255, 220, 238, 0.7), transparent 40%),
+          radial-gradient(circle at 50% 80%, rgba(255, 182, 213, 0.6), transparent 45%);
+        opacity: 0.9;
+      }
+
+      #float-layer,
+      #sparkle-layer,
+      #ladybug-layer {
+        position: absolute;
+        inset: 0;
+      }
+
+      #card-shell {
+        position: relative;
+        width: 100%;
+        min-height: 440px;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .card {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        padding: 32px 28px;
+        width: 100%;
+        max-width: 520px;
+        background: linear-gradient(180deg, #fff6fb 0%, #ffeaf6 100%);
+        border-radius: var(--card-radius);
+        border: 2px solid #ffb5d8;
+        box-shadow: var(--shadow-soft);
+        text-align: center;
+        opacity: 0;
+        transform: translateY(18px) scale(0.98);
+        transition: opacity 0.35s ease, transform 0.35s ease;
+        pointer-events: none;
+      }
+
+      .card.is-active {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+      }
+
+      .card-title {
+        font-size: 2.2rem;
+        margin-bottom: 8px;
+      }
+
+      h1,
+      h2 {
+        font-family: "Comic Sans MS", "Trebuchet MS", cursive;
+        color: #c12b6b;
+        margin: 12px 0 18px;
+        line-height: 1.2;
+      }
+
+      p {
+        margin: 12px 0 20px;
+        font-size: 1.05rem;
+      }
+
+      .tiny-note {
+        font-size: 0.9rem;
+        opacity: 0.75;
+        margin-top: 14px;
+      }
+
+      .button-row {
+        display: flex;
+        gap: 14px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        position: relative;
+        border: none;
+        border-radius: 999px;
+        padding: 12px 22px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: var(--shadow-btn);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        --btn-x: 0px;
+        --btn-y: 0px;
+        --btn-scale: 1;
+        transform: translate(var(--btn-x), var(--btn-y)) scale(var(--btn-scale));
+      }
+
+      .btn.primary {
+        background: linear-gradient(135deg, #ff7fb9, #ff9ccd);
+        color: #fff;
+      }
+
+      .btn.secondary {
+        background: linear-gradient(135deg, #ffe4f1, #ffd3e6);
+        color: #8f2b57;
+      }
+
+      .btn:hover {
+        animation: bounce 0.35s ease;
+        box-shadow: 0 10px 18px rgba(255, 111, 174, 0.35);
+      }
+
+      .btn.wiggle {
+        animation: wiggle 0.35s ease;
+      }
+
+      .no-btn {
+        border: 2px dashed rgba(255, 122, 177, 0.6);
+      }
+
+      .kitty-face {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin: 12px auto 18px;
+        background: #1f1c26;
+        border-radius: 50%;
+        box-shadow: inset 0 0 0 4px #2b2632;
+      }
+
+      .kitty-ear {
+        position: absolute;
+        width: 34px;
+        height: 34px;
+        background: #1f1c26;
+        top: -6px;
+        clip-path: polygon(50% 0, 0 100%, 100% 100%);
+      }
+
+      .kitty-ear.left {
+        left: 14px;
+        transform: rotate(-8deg);
+      }
+
+      .kitty-ear.right {
+        right: 14px;
+        transform: rotate(8deg);
+      }
+
+      .kitty-eye {
+        position: absolute;
+        top: 46px;
+        width: 12px;
+        height: 16px;
+        border-radius: 50%;
+        background: #f7f0f4;
+      }
+
+      .kitty-eye.left {
+        left: 38px;
+      }
+
+      .kitty-eye.right {
+        right: 38px;
+      }
+
+      .kitty-mouth {
+        position: absolute;
+        top: 72px;
+        left: 50%;
+        width: 36px;
+        height: 18px;
+        border-bottom: 4px solid #f7f0f4;
+        border-radius: 0 0 40px 40px;
+        transform: translateX(-50%);
+      }
+
+      .kitty-mouth::before {
+        content: "";
+        position: absolute;
+        top: -6px;
+        left: 50%;
+        width: 8px;
+        height: 6px;
+        background: #f7f0f4;
+        border-radius: 50%;
+        transform: translateX(-50%);
+      }
+
+      .float-heart,
+      .sparkle,
+      .ladybug {
+        position: absolute;
+        bottom: -10%;
+        animation: floatUp 10s linear infinite;
+        opacity: 0.8;
+        pointer-events: none;
+      }
+
+      .sparkle {
+        animation: twinkle 3.5s ease-in-out infinite;
+        opacity: 0.6;
+      }
+
+      .ladybug {
+        animation-duration: 12s;
+        font-size: 1.3rem;
+        opacity: 0.85;
+        filter: drop-shadow(0 6px 8px rgba(255, 111, 174, 0.2));
+      }
+
+      .celebrate h2 {
+        font-size: 1.5rem;
+      }
+
+      #burst-layer {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      .burst-heart {
+        position: absolute;
+        left: 50%;
+        top: 55%;
+        font-size: 1.1rem;
+        animation: burst 0.9s ease-out forwards;
+        transform: translate(-50%, -50%);
+      }
+
+      @keyframes floatUp {
+        0% {
+          transform: translateY(0) scale(0.9);
+          opacity: 0;
+        }
+        10% {
+          opacity: 0.75;
+        }
+        100% {
+          transform: translateY(-140vh) scale(1.3);
+          opacity: 0;
+        }
+      }
+
+      @keyframes twinkle {
+        0%,
+        100% {
+          transform: scale(0.8) rotate(0deg);
+          opacity: 0.35;
+        }
+        50% {
+          transform: scale(1.15) rotate(10deg);
+          opacity: 0.8;
+        }
+      }
+
+      @keyframes wiggle {
+        0% {
+          transform: translate(var(--btn-x), var(--btn-y)) scale(var(--btn-scale)) rotate(0deg);
+        }
+        30% {
+          transform: translate(var(--btn-x), var(--btn-y)) scale(var(--btn-scale)) rotate(-8deg);
+        }
+        60% {
+          transform: translate(var(--btn-x), var(--btn-y)) scale(var(--btn-scale)) rotate(8deg);
+        }
+        100% {
+          transform: translate(var(--btn-x), var(--btn-y)) scale(var(--btn-scale)) rotate(0deg);
+        }
+      }
+
+      @keyframes bounce {
+        0% {
+          transform: translate(var(--btn-x), var(--btn-y)) scale(var(--btn-scale));
+        }
+        50% {
+          transform: translate(var(--btn-x), var(--btn-y)) scale(calc(var(--btn-scale) + 0.08));
+        }
+        100% {
+          transform: translate(var(--btn-x), var(--btn-y)) scale(var(--btn-scale));
+        }
+      }
+
+      @keyframes burst {
+        0% {
+          transform: translate(-50%, -50%) scale(0.4);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(1.2);
+          opacity: 0;
+        }
+      }
+
+      @media (max-width: 480px) {
+        #app {
+          min-height: 480px;
+        }
+
+        .card {
+          padding: 24px 20px;
+        }
+
+        h1 {
+          font-size: 1.6rem;
+        }
+
+        h2 {
+          font-size: 1.35rem;
+        }
+
+        .button-row {
+          gap: 10px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="app" aria-live="polite">
+      <div id="background" aria-hidden="true">
+        <div id="float-layer"></div>
+        <div id="sparkle-layer"></div>
+        <div id="ladybug-layer"></div>
+      </div>
+
+      <div id="card-shell">
+        <section class="card is-active" data-card="intro" aria-hidden="false">
+          <div class="card-title">💌</div>
+          <p>ik i may be a bit slow but i hope this makes up for the last minute call 💕</p>
+          <button class="btn primary" data-next="question">Next</button>
+        </section>
+
+        <section class="card" data-card="question" aria-hidden="true">
+          <div class="card-title">💖</div>
+          <h1>Will you be my Valentine?</h1>
+          <div class="button-row">
+            <button class="btn primary" data-yes>Yes 💖</button>
+            <button class="btn secondary no-btn" id="no-btn">No 😢</button>
+          </div>
+          <p class="tiny-note">no clicks: <span id="no-count">0</span></p>
+        </section>
+
+        <section class="card" data-card="kitty" aria-hidden="true">
+          <div class="card-title">🐱💔</div>
+          <p>so you dont like your kitty? 🐱💔</p>
+          <div class="kitty-face" aria-hidden="true">
+            <span class="kitty-ear left"></span>
+            <span class="kitty-ear right"></span>
+            <span class="kitty-eye left"></span>
+            <span class="kitty-eye right"></span>
+            <span class="kitty-mouth"></span>
+          </div>
+          <div class="button-row">
+            <button class="btn primary" data-yes>Yes</button>
+            <button class="btn secondary no-btn" id="kitty-no">No</button>
+          </div>
+        </section>
+
+        <section class="card" data-card="plea" aria-hidden="true">
+          <div class="card-title">😈</div>
+          <p>is ahll cosndier this noa 😌 yes that you love me</p>
+          <div class="button-row">
+            <button class="btn primary" data-yes>Yes</button>
+            <button class="btn secondary no-btn" id="plea-no">No</button>
+          </div>
+          <p class="tiny-note" id="plea-note">the no button is getting shy...</p>
+        </section>
+
+        <section class="card celebrate" data-card="celebrate" aria-hidden="true">
+          <div class="card-title">🎀</div>
+          <h2>THEN YOU SHALL BE MY VALENTINE YAYYY 💖🎀🐞</h2>
+          <p>brace for sparkles, hearts, and tiny ladybug hype</p>
+          <div id="burst-layer" aria-hidden="true"></div>
+        </section>
+      </div>
+    </main>
+
+    <script>
+      const cards = Array.from(document.querySelectorAll(".card"));
+      let activeCard = document.querySelector(".card.is-active");
+
+      const noBtn = document.getElementById("no-btn");
+      const noCountEl = document.getElementById("no-count");
+      const kittyNoBtn = document.getElementById("kitty-no");
+      const pleaNoBtn = document.getElementById("plea-no");
+      const pleaNote = document.getElementById("plea-note");
+
+      let noCount = 0;
+      let pleaNoCount = 0;
+      let audioCtx = null;
+
+      const pleaMessages = [
+        "the no button is getting shy...",
+        "is that a yes in disguise?",
+        "pls consider: cute kitty eyes 🥺",
+        "no button is wobbling from confusion",
+        "if you press no again, it blushes",
+      ];
+
+      function showCard(name) {
+        const next = document.querySelector(`.card[data-card="${name}"]`);
+        if (!next || next === activeCard) return;
+        if (activeCard) {
+          activeCard.classList.remove("is-active");
+          activeCard.setAttribute("aria-hidden", "true");
+        }
+        next.classList.add("is-active");
+        next.setAttribute("aria-hidden", "false");
+        activeCard = next;
+        if (name === "celebrate") launchCelebration();
+      }
+
+      function playPop() {
+        try {
+          if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          }
+          if (audioCtx.state === "suspended") audioCtx.resume();
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = "triangle";
+          osc.frequency.value = 420 + Math.random() * 140;
+          gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.13);
+        } catch (err) {
+          // Audio is optional; ignore any errors.
+        }
+      }
+
+      function wiggleButton(btn) {
+        btn.classList.remove("wiggle");
+        void btn.offsetWidth;
+        btn.classList.add("wiggle");
+      }
+
+      function resistButton(btn) {
+        const x = Math.random() * 50 - 25;
+        const y = Math.random() * 28 - 14;
+        const scale = 0.92 + Math.random() * 0.08;
+        btn.style.setProperty("--btn-x", `${x}px`);
+        btn.style.setProperty("--btn-y", `${y}px`);
+        btn.style.setProperty("--btn-scale", scale.toFixed(2));
+        wiggleButton(btn);
+      }
+
+      function launchCelebration() {
+        const burstLayer = document.getElementById("burst-layer");
+        burstLayer.innerHTML = "";
+        for (let i = 0; i < 28; i += 1) {
+          const heart = document.createElement("span");
+          heart.className = "burst-heart";
+          heart.textContent = ["💖", "💗", "💕", "💞"][i % 4];
+          const x = Math.random() * 220 - 110;
+          const y = Math.random() * 220 - 150;
+          heart.style.setProperty("--x", `${x}px`);
+          heart.style.setProperty("--y", `${y}px`);
+          heart.style.fontSize = `${14 + Math.random() * 14}px`;
+          burstLayer.appendChild(heart);
+        }
+      }
+
+      document.querySelectorAll("[data-next]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          playPop();
+          showCard(btn.dataset.next);
+        });
+      });
+
+      document.querySelectorAll("[data-yes]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          playPop();
+          showCard("celebrate");
+        });
+      });
+
+      if (noBtn) {
+        noBtn.addEventListener("click", () => {
+          playPop();
+          noCount += 1;
+          noCountEl.textContent = noCount;
+          resistButton(noBtn);
+          if (noCount >= 15) showCard("kitty");
+        });
+      }
+
+      if (kittyNoBtn) {
+        kittyNoBtn.addEventListener("click", () => {
+          playPop();
+          resistButton(kittyNoBtn);
+          showCard("plea");
+        });
+      }
+
+      if (pleaNoBtn) {
+        pleaNoBtn.addEventListener("click", () => {
+          playPop();
+          pleaNoCount += 1;
+          resistButton(pleaNoBtn);
+          const msg = pleaMessages[pleaNoCount % pleaMessages.length];
+          pleaNote.textContent = msg;
+        });
+      }
+
+      function spawnFloaters() {
+        const floatLayer = document.getElementById("float-layer");
+        const sparkleLayer = document.getElementById("sparkle-layer");
+        const ladybugLayer = document.getElementById("ladybug-layer");
+        const hearts = ["❤", "💗", "💖", "💕"];
+
+        for (let i = 0; i < 16; i += 1) {
+          const heart = document.createElement("span");
+          heart.className = "float-heart";
+          heart.textContent = hearts[i % hearts.length];
+          heart.style.left = `${Math.random() * 100}%`;
+          heart.style.fontSize = `${12 + Math.random() * 16}px`;
+          heart.style.animationDuration = `${8 + Math.random() * 6}s`;
+          heart.style.animationDelay = `${-Math.random() * 8}s`;
+          heart.style.opacity = `${0.4 + Math.random() * 0.5}`;
+          floatLayer.appendChild(heart);
+        }
+
+        for (let i = 0; i < 10; i += 1) {
+          const sparkle = document.createElement("span");
+          sparkle.className = "sparkle";
+          sparkle.textContent = "✨";
+          sparkle.style.left = `${Math.random() * 100}%`;
+          sparkle.style.top = `${Math.random() * 100}%`;
+          sparkle.style.fontSize = `${10 + Math.random() * 10}px`;
+          sparkle.style.animationDelay = `${-Math.random() * 3}s`;
+          sparkleLayer.appendChild(sparkle);
+        }
+
+        for (let i = 0; i < 6; i += 1) {
+          const bug = document.createElement("span");
+          bug.className = "ladybug";
+          bug.textContent = "🐞";
+          bug.style.left = `${Math.random() * 100}%`;
+          bug.style.fontSize = `${16 + Math.random() * 8}px`;
+          bug.style.animationDuration = `${10 + Math.random() * 6}s`;
+          bug.style.animationDelay = `${-Math.random() * 6}s`;
+          ladybugLayer.appendChild(bug);
+        }
+      }
+
+      spawnFloaters();
+    </script>
+  </body>
+</html>
