@@ -40,6 +40,23 @@ Site will be live via GitHub Pages
         font-family: "Trebuchet MS", "Comic Sans MS", "Segoe UI", sans-serif;
         color: var(--ink);
         overflow: hidden;
+        position: relative;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          radial-gradient(circle, rgba(255, 255, 255, 0.9) 0 1px, transparent 2px),
+          radial-gradient(circle, rgba(255, 200, 230, 0.7) 0 1.5px, transparent 3px),
+          radial-gradient(circle, rgba(255, 255, 255, 0.6) 0 1px, transparent 2.5px);
+        background-size: 28px 28px, 40px 40px, 20px 20px;
+        background-position: 0 0, 16px 10px, 8px 20px;
+        opacity: 0.6;
+        z-index: 0;
+        animation: glitterDrift 16s linear infinite;
       }
 
       #app {
@@ -50,6 +67,7 @@ Site will be live via GitHub Pages
         display: flex;
         align-items: center;
         justify-content: center;
+        z-index: 1;
       }
 
       #background {
@@ -69,6 +87,20 @@ Site will be live via GitHub Pages
           radial-gradient(circle at 80% 10%, rgba(255, 220, 238, 0.7), transparent 40%),
           radial-gradient(circle at 50% 80%, rgba(255, 182, 213, 0.6), transparent 45%);
         opacity: 0.9;
+      }
+
+      #background::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          radial-gradient(circle, rgba(255, 255, 255, 0.9) 0 1px, transparent 2px),
+          radial-gradient(circle, rgba(255, 214, 236, 0.8) 0 1.5px, transparent 3px),
+          radial-gradient(circle, rgba(255, 255, 255, 0.7) 0 1px, transparent 2.5px);
+        background-size: 24px 24px, 36px 36px, 18px 18px;
+        background-position: 0 0, 10px 12px, 5px 18px;
+        opacity: 0.7;
+        animation: shimmer 8s linear infinite;
       }
 
       #float-layer,
@@ -318,6 +350,24 @@ Site will be live via GitHub Pages
         }
       }
 
+      @keyframes shimmer {
+        0% {
+          background-position: 0 0, 10px 12px, 5px 18px;
+        }
+        100% {
+          background-position: 60px -40px, -20px 50px, 40px 80px;
+        }
+      }
+
+      @keyframes glitterDrift {
+        0% {
+          background-position: 0 0, 16px 10px, 8px 20px;
+        }
+        100% {
+          background-position: 90px -60px, -40px 70px, 60px 120px;
+        }
+      }
+
       @keyframes wiggle {
         0% {
           transform: translate(var(--btn-x), var(--btn-y)) scale(var(--btn-scale)) rotate(0deg);
@@ -429,7 +479,7 @@ Site will be live via GitHub Pages
 
         <section class="card" data-card="plea" aria-hidden="true">
           <div class="card-title">😈</div>
-          <p>is ahll cosndier this noa 😌 yes that you love me</p>
+          <p>into one ear and out the other 😌 i shall consider it as a yes</p>
           <div class="button-row">
             <button class="btn primary" data-yes>Yes</button>
             <button class="btn secondary no-btn" id="plea-no">No</button>
@@ -580,9 +630,10 @@ Site will be live via GitHub Pages
         const floatLayer = document.getElementById("float-layer");
         const sparkleLayer = document.getElementById("sparkle-layer");
         const ladybugLayer = document.getElementById("ladybug-layer");
-        const hearts = ["❤", "💗", "💖", "💕"];
+        const hearts = ["❤", "💗", "💖", "💕", "💞", "💘"];
+        const sparkles = ["✨", "✦", "✧", "✺"];
 
-        for (let i = 0; i < 16; i += 1) {
+        for (let i = 0; i < 24; i += 1) {
           const heart = document.createElement("span");
           heart.className = "float-heart";
           heart.textContent = hearts[i % hearts.length];
@@ -594,14 +645,16 @@ Site will be live via GitHub Pages
           floatLayer.appendChild(heart);
         }
 
-        for (let i = 0; i < 10; i += 1) {
+        for (let i = 0; i < 28; i += 1) {
           const sparkle = document.createElement("span");
           sparkle.className = "sparkle";
-          sparkle.textContent = "✨";
+          sparkle.textContent = sparkles[i % sparkles.length];
           sparkle.style.left = `${Math.random() * 100}%`;
           sparkle.style.top = `${Math.random() * 100}%`;
-          sparkle.style.fontSize = `${10 + Math.random() * 10}px`;
-          sparkle.style.animationDelay = `${-Math.random() * 3}s`;
+          sparkle.style.fontSize = `${9 + Math.random() * 12}px`;
+          sparkle.style.animationDelay = `${-Math.random() * 4}s`;
+          sparkle.style.animationDuration = `${2.8 + Math.random() * 3.2}s`;
+          sparkle.style.opacity = `${0.35 + Math.random() * 0.5}`;
           sparkleLayer.appendChild(sparkle);
         }
 
