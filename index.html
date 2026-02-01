@@ -305,6 +305,108 @@ Site will be live via GitHub Pages
         filter: drop-shadow(0 6px 8px rgba(255, 111, 174, 0.2));
       }
 
+      .minigame-section {
+        margin-top: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .minigame-section .btn {
+        max-width: 420px;
+      }
+
+      .modal {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 214, 236, 0.75);
+        backdrop-filter: blur(6px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+        z-index: 6;
+      }
+
+      .modal.is-open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .modal-card {
+        width: min(92vw, 520px);
+        background: linear-gradient(180deg, #fff6fb 0%, #ffeaf6 100%);
+        border-radius: 24px;
+        padding: 24px;
+        border: 2px solid #ffb5d8;
+        box-shadow: var(--shadow-soft);
+        text-align: center;
+      }
+
+      .game-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        margin: 8px 0 12px;
+        color: #8f2b57;
+      }
+
+      .game-board {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        background: #ffd6ea;
+        padding: 12px;
+        border-radius: 18px;
+        box-shadow: inset 0 0 0 2px rgba(255, 141, 194, 0.4);
+        margin-bottom: 14px;
+        touch-action: none;
+      }
+
+      .game-cell {
+        position: relative;
+        width: 100%;
+        padding-top: 100%;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 12px;
+      }
+
+      .tile {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        color: #7a2550;
+        box-shadow: inset 0 -4px 0 rgba(255, 111, 174, 0.18);
+      }
+
+      .tile[data-value="2"] { background: #fff3f9; }
+      .tile[data-value="4"] { background: #ffe7f4; }
+      .tile[data-value="8"] { background: #ffd7eb; }
+      .tile[data-value="16"] { background: #ffc7e2; }
+      .tile[data-value="32"] { background: #ffb6da; }
+      .tile[data-value="64"] { background: #ffa3d0; color: #fff; }
+      .tile[data-value="128"] { background: #ff8dc6; color: #fff; }
+      .tile[data-value="256"] { background: #ff79bc; color: #fff; }
+      .tile[data-value="512"] { background: #ff66b3; color: #fff; }
+      .tile[data-value="1024"] { background: #ff4ea7; color: #fff; }
+      .tile[data-value="2048"] { background: #ff2e97; color: #fff; }
+
+      .btn.ghost {
+        background: transparent;
+        color: #9a3d6b;
+        border: 2px dotted #ffb5d8;
+        box-shadow: none;
+        margin-top: 10px;
+      }
+
       .celebrate h2 {
         font-size: 1.5rem;
       }
@@ -484,6 +586,12 @@ Site will be live via GitHub Pages
             <button class="btn primary" data-yes>Yes</button>
             <button class="btn secondary no-btn" id="plea-no">No</button>
           </div>
+          <div class="minigame-section">
+            <p class="tiny-note">if ya wanna challenge me then you can</p>
+            <button class="btn secondary" id="game-btn">
+              Play 2048 to convince me!
+            </button>
+          </div>
           <p class="tiny-note" id="plea-note">the no button is getting shy...</p>
         </section>
 
@@ -493,6 +601,24 @@ Site will be live via GitHub Pages
           <p>brace for sparkles, hearts, and tiny ladybug hype</p>
           <div id="burst-layer" aria-hidden="true"></div>
         </section>
+      </div>
+
+      <div id="game-modal" class="modal" aria-hidden="true">
+        <div class="modal-card">
+          <div class="card-title">🎮💖</div>
+          <h2>2048 Challenge</h2>
+          <p class="tiny-note">use arrow keys or swipe ✨</p>
+          <div class="game-meta">
+            <span>score: <strong id="game-score">0</strong></span>
+            <span id="game-status">keep merging!</span>
+          </div>
+          <div class="game-board" id="game-board" aria-label="2048 board"></div>
+          <div class="button-row">
+            <button class="btn secondary" id="game-reset">Reset</button>
+            <button class="btn primary" id="game-yes">I'm done (counts as yes)</button>
+          </div>
+          <button class="btn ghost" id="game-close" aria-label="Close game">Back</button>
+        </div>
       </div>
     </main>
 
@@ -505,10 +631,23 @@ Site will be live via GitHub Pages
       const kittyNoBtn = document.getElementById("kitty-no");
       const pleaNoBtn = document.getElementById("plea-no");
       const pleaNote = document.getElementById("plea-note");
+      const gameBtn = document.getElementById("game-btn");
+      const gameModal = document.getElementById("game-modal");
+      const gameBoardEl = document.getElementById("game-board");
+      const gameScoreEl = document.getElementById("game-score");
+      const gameStatusEl = document.getElementById("game-status");
+      const gameResetBtn = document.getElementById("game-reset");
+      const gameYesBtn = document.getElementById("game-yes");
+      const gameCloseBtn = document.getElementById("game-close");
 
       let noCount = 0;
       let pleaNoCount = 0;
       let audioCtx = null;
+      let gameOpen = false;
+      let gameScore = 0;
+      let gameBoardState = [];
+      let touchStartX = 0;
+      let touchStartY = 0;
 
       const pleaMessages = [
         "the no button is getting shy...",
@@ -568,6 +707,142 @@ Site will be live via GitHub Pages
         wiggleButton(btn);
       }
 
+      function openGame() {
+        if (!gameModal) return;
+        gameModal.classList.add("is-open");
+        gameModal.setAttribute("aria-hidden", "false");
+        gameOpen = true;
+        initGame();
+      }
+
+      function closeGame() {
+        if (!gameModal) return;
+        gameModal.classList.remove("is-open");
+        gameModal.setAttribute("aria-hidden", "true");
+        gameOpen = false;
+      }
+
+      function setGameStatus(text) {
+        if (gameStatusEl) gameStatusEl.textContent = text;
+      }
+
+      function initGame() {
+        gameScore = 0;
+        gameBoardState = Array.from({ length: 4 }, () => Array(4).fill(0));
+        spawnTile();
+        spawnTile();
+        setGameStatus("keep merging!");
+        renderGame();
+      }
+
+      function spawnTile() {
+        const empty = [];
+        for (let r = 0; r < 4; r += 1) {
+          for (let c = 0; c < 4; c += 1) {
+            if (gameBoardState[r][c] === 0) empty.push([r, c]);
+          }
+        }
+        if (!empty.length) return;
+        const [row, col] = empty[Math.floor(Math.random() * empty.length)];
+        gameBoardState[row][col] = Math.random() < 0.9 ? 2 : 4;
+      }
+
+      function renderGame() {
+        if (!gameBoardEl) return;
+        gameBoardEl.innerHTML = "";
+        for (let r = 0; r < 4; r += 1) {
+          for (let c = 0; c < 4; c += 1) {
+            const cell = document.createElement("div");
+            cell.className = "game-cell";
+            const value = gameBoardState[r][c];
+            if (value) {
+              const tile = document.createElement("div");
+              tile.className = "tile";
+              tile.dataset.value = value;
+              tile.textContent = value;
+              cell.appendChild(tile);
+            }
+            gameBoardEl.appendChild(cell);
+          }
+        }
+        if (gameScoreEl) gameScoreEl.textContent = gameScore;
+        if (hasWon()) {
+          setGameStatus("2048!! love unlocked 💖");
+        } else if (!hasMoves()) {
+          setGameStatus("no moves left (still counts as yes)");
+        }
+      }
+
+      function collapseRow(row) {
+        const filtered = row.filter((value) => value !== 0);
+        const merged = [];
+        for (let i = 0; i < filtered.length; i += 1) {
+          if (filtered[i] === filtered[i + 1]) {
+            const val = filtered[i] * 2;
+            merged.push(val);
+            gameScore += val;
+            i += 1;
+          } else {
+            merged.push(filtered[i]);
+          }
+        }
+        while (merged.length < 4) merged.push(0);
+        return merged;
+      }
+
+      function move(direction) {
+        let moved = false;
+        if (direction === "left" || direction === "right") {
+          for (let r = 0; r < 4; r += 1) {
+            const row = [...gameBoardState[r]];
+            const working = direction === "right" ? row.reverse() : row;
+            const collapsed = collapseRow(working);
+            const newRow = direction === "right" ? collapsed.reverse() : collapsed;
+            if (newRow.some((value, idx) => value !== gameBoardState[r][idx])) {
+              moved = true;
+              gameBoardState[r] = newRow;
+            }
+          }
+        } else {
+          for (let c = 0; c < 4; c += 1) {
+            const column = [];
+            for (let r = 0; r < 4; r += 1) column.push(gameBoardState[r][c]);
+            const working = direction === "down" ? column.reverse() : column;
+            const collapsed = collapseRow(working);
+            const newCol = direction === "down" ? collapsed.reverse() : collapsed;
+            for (let r = 0; r < 4; r += 1) {
+              if (gameBoardState[r][c] !== newCol[r]) moved = true;
+              gameBoardState[r][c] = newCol[r];
+            }
+          }
+        }
+
+        if (moved) {
+          spawnTile();
+          renderGame();
+        }
+      }
+
+      function hasMoves() {
+        for (let r = 0; r < 4; r += 1) {
+          for (let c = 0; c < 4; c += 1) {
+            if (gameBoardState[r][c] === 0) return true;
+            if (r < 3 && gameBoardState[r][c] === gameBoardState[r + 1][c]) return true;
+            if (c < 3 && gameBoardState[r][c] === gameBoardState[r][c + 1]) return true;
+          }
+        }
+        return false;
+      }
+
+      function hasWon() {
+        return gameBoardState.some((row) => row.some((value) => value >= 2048));
+      }
+
+      function handleMove(direction) {
+        if (!gameOpen) return;
+        move(direction);
+      }
+
       function launchCelebration() {
         const burstLayer = document.getElementById("burst-layer");
         burstLayer.innerHTML = "";
@@ -598,6 +873,41 @@ Site will be live via GitHub Pages
         });
       });
 
+      if (gameBtn) {
+        gameBtn.addEventListener("click", () => {
+          playPop();
+          openGame();
+        });
+      }
+
+      if (gameResetBtn) {
+        gameResetBtn.addEventListener("click", () => {
+          playPop();
+          initGame();
+        });
+      }
+
+      if (gameYesBtn) {
+        gameYesBtn.addEventListener("click", () => {
+          playPop();
+          closeGame();
+          showCard("celebrate");
+        });
+      }
+
+      if (gameCloseBtn) {
+        gameCloseBtn.addEventListener("click", () => {
+          playPop();
+          closeGame();
+        });
+      }
+
+      if (gameModal) {
+        gameModal.addEventListener("click", (event) => {
+          if (event.target === gameModal) closeGame();
+        });
+      }
+
       if (noBtn) {
         noBtn.addEventListener("click", () => {
           playPop();
@@ -623,6 +933,42 @@ Site will be live via GitHub Pages
           resistButton(pleaNoBtn);
           const msg = pleaMessages[pleaNoCount % pleaMessages.length];
           pleaNote.textContent = msg;
+        });
+      }
+
+      window.addEventListener("keydown", (event) => {
+        if (!gameOpen) return;
+        const keys = {
+          ArrowLeft: "left",
+          ArrowRight: "right",
+          ArrowUp: "up",
+          ArrowDown: "down",
+        };
+        if (keys[event.key]) {
+          event.preventDefault();
+          handleMove(keys[event.key]);
+        }
+      });
+
+      if (gameBoardEl) {
+        gameBoardEl.addEventListener("touchstart", (event) => {
+          if (!gameOpen) return;
+          const touch = event.changedTouches[0];
+          touchStartX = touch.clientX;
+          touchStartY = touch.clientY;
+        });
+
+        gameBoardEl.addEventListener("touchend", (event) => {
+          if (!gameOpen) return;
+          const touch = event.changedTouches[0];
+          const dx = touch.clientX - touchStartX;
+          const dy = touch.clientY - touchStartY;
+          if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
+          if (Math.abs(dx) > Math.abs(dy)) {
+            handleMove(dx > 0 ? "right" : "left");
+          } else {
+            handleMove(dy > 0 ? "down" : "up");
+          }
         });
       }
 
