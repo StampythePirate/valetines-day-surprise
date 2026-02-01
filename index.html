@@ -214,73 +214,13 @@ Site will be live via GitHub Pages
         border: 2px dashed rgba(255, 122, 177, 0.6);
       }
 
-      .kitty-face {
-        position: relative;
-        width: 120px;
-        height: 120px;
-        margin: 12px auto 18px;
-        background: #1f1c26;
-        border-radius: 50%;
-        box-shadow: inset 0 0 0 4px #2b2632;
-      }
-
-      .kitty-ear {
-        position: absolute;
-        width: 34px;
-        height: 34px;
-        background: #1f1c26;
-        top: -6px;
-        clip-path: polygon(50% 0, 0 100%, 100% 100%);
-      }
-
-      .kitty-ear.left {
-        left: 14px;
-        transform: rotate(-8deg);
-      }
-
-      .kitty-ear.right {
-        right: 14px;
-        transform: rotate(8deg);
-      }
-
-      .kitty-eye {
-        position: absolute;
-        top: 46px;
-        width: 12px;
-        height: 16px;
-        border-radius: 50%;
-        background: #f7f0f4;
-      }
-
-      .kitty-eye.left {
-        left: 38px;
-      }
-
-      .kitty-eye.right {
-        right: 38px;
-      }
-
-      .kitty-mouth {
-        position: absolute;
-        top: 72px;
-        left: 50%;
-        width: 36px;
-        height: 18px;
-        border-bottom: 4px solid #f7f0f4;
-        border-radius: 0 0 40px 40px;
-        transform: translateX(-50%);
-      }
-
-      .kitty-mouth::before {
-        content: "";
-        position: absolute;
-        top: -6px;
-        left: 50%;
-        width: 8px;
-        height: 6px;
-        background: #f7f0f4;
-        border-radius: 50%;
-        transform: translateX(-50%);
+      .kitty-image {
+        display: block;
+        width: 140px;
+        height: 140px;
+        object-fit: contain;
+        margin: 6px auto 18px;
+        background: transparent;
       }
 
       .float-heart,
@@ -566,13 +506,7 @@ Site will be live via GitHub Pages
         <section class="card" data-card="kitty" aria-hidden="true">
           <div class="card-title">🐱💔</div>
           <p>so you dont like your kitty? 🐱💔</p>
-          <div class="kitty-face" aria-hidden="true">
-            <span class="kitty-ear left"></span>
-            <span class="kitty-ear right"></span>
-            <span class="kitty-eye left"></span>
-            <span class="kitty-eye right"></span>
-            <span class="kitty-mouth"></span>
-          </div>
+          <img class="kitty-image" src="black-cat.webp" alt="sad black kitty" />
           <div class="button-row">
             <button class="btn primary" data-yes>Yes</button>
             <button class="btn secondary no-btn" id="kitty-no">No</button>
